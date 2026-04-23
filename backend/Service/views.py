@@ -6,7 +6,8 @@ from .serializers import (
     BikeModelSerializer, ComponentSerializer, VehicleSerializer, VehicleIssueSerializer, 
     RepairOrderSerializer, RepairComponentSerializer, AppointmentSerializer, InventoryPartSerializer
 )
-from django.db.models import Sum
+from django.db.models import Sum, Count, Q, Avg
+from django.db.models.functions import TruncDay
 from django.utils import timezone
 from datetime import timedelta
 
@@ -57,6 +58,49 @@ class RepairOrderViewSet(viewsets.ModelViewSet):
         repair_order.is_paid = True
         repair_order.save()
         return Response({'status': 'Payment successful', 'total_paid': repair_order.total_price})
+
+    @action(detail=False, methods=['get'])
+    def dashboard_stats(self, request):
+        today = timezone.now()
+        start_of_month = today.replace(day=1, hour=0, minute=0, second=0)
+        
+        # 1. Total Revenue (All paid orders)
+        total_revenue = RepairOrder.objects.filter(is_paid=True).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+        # 2. Outstanding Payments (Unpaid)
+        outstanding = RepairOrder.objects.filter(is_paid=False).aggregate(Sum('total_price'))['total_price__sum'] or 0
+
+        # 3. Average Service Value
+        avg_value = RepairOrder.objects.filter(is_paid=True).aggregate(Avg('total_price'))['total_price__avg'] or 0
+
+        # 4. Daily Revenue Distribution (Last 30 days)
+        last_30_days = today - timedelta(days=30)
+        daily_revenue = (
+            RepairOrder.objects.filter(is_paid=True, created_at__gte=last_30_days)
+            .annotate(day=TruncDay('created_at'))
+            .values('day')
+            .annotate(revenue=Sum('total_price'))
+            .order_by('day')
+        )
+
+        # 5. Revenue by Category (Mock logic - adjust based on your 'issue' or 'service_type')
+        # This assumes you have a way to categorize orders
+        category_data = [
+            {"name": "Regular Service", "value": 45},
+            {"name": "Repairs", "value": 30},
+            {"name": "Performance", "value": 25},
+        ]
+
+        return Response({
+            "summary": {
+                "total_revenue": total_revenue,
+                "monthly_growth": 12,  # Logic for growth calculation needed
+                "avg_service_value": round(avg_value, 2),
+                "outstanding_payments": outstanding,
+            },
+            "daily_distribution": list(daily_revenue),
+            "categories": category_data
+        })
 
 class RevenueViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]

@@ -55,6 +55,7 @@ function StaffDashboard() {
                         <span onClick={() => navigate('/staff-dashboard')} style={{ color: '#ea580c', fontWeight: 'bold', borderBottom: '2px solid #ea580c', paddingBottom: '16px', marginBottom: '-17px', cursor: 'pointer' }}>Dashboard</span>
                         <span onClick={() => navigate('/staff-inventory')} style={{ color: '#64748b', cursor: 'pointer' }}>Inventory</span>
                         <span onClick={() => navigate('/staff-appointments')} style={{ color: '#64748b', cursor: 'pointer' }}>Appointments</span>
+                        <span onClick={() => navigate('/revenue')} style={{ color: '#64748b', cursor: 'pointer' }}>Revenue</span>
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

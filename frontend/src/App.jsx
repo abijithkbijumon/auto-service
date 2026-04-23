@@ -140,6 +140,8 @@ import StaffRegistration from './StaffRegistration';
 import StaffDashboard from './StaffDashboard';
 import StaffAppointments from './StaffAppointments';
 import StaffInventory from './StaffInventory';
+import RevenueDashboard from './RevenueDashboard';
+
 
 function App() {
   return (
@@ -162,6 +164,8 @@ function App() {
       <Route path="/staff-dashboard" element={<StaffDashboard />} />
       <Route path="/staff-appointments" element={<StaffAppointments />} />
       <Route path="/staff-inventory" element={<StaffInventory />} />
+      <Route path="/revenue" element={<RevenueDashboard />} />
+
     </Routes>
   );
 }
